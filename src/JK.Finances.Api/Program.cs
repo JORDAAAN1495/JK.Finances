@@ -19,8 +19,7 @@ builder.Configuration
     .AddEnvironmentVariables()
     .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
-builder.Services.AddScoped<IDbConnection, DbConnection>();
-builder.Services.AddScoped<IMongoAccountService, MongoAccountService>();
+builder.Services.AddDataAccess();
 
 var app = builder.Build();
 

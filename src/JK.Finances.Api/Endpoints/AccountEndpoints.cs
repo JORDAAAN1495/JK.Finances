@@ -7,14 +7,22 @@ public static class AccountEndpoints
         app.MapGet("/accounts", async (IMongoAccountService accountService) =>
         {
             var result = await accountService.GetAccountsAsync();
-            return Results.Ok(result);
+
+            var response = new GetAccountsResponse(result);
+
+            return Results.Ok(response);
         })
+        .Produces<GetAccountsResponse>()
         .WithName("GetAccounts")
         .WithOpenApi();
 
-        app.MapPost("/accounts", async ([FromBody] AccountModel account, IMongoAccountService accountService) =>
+        app.MapPost("/accounts", async ([FromBody]CreateAccountRequest request, IMongoAccountService accountService) =>
         {
-            var result = await accountService.CreateAccountAsync(account);
+            var result = await accountService.CreateAccountAsync(new()
+            {
+                Name = request.Name
+            });
+
             return string.IsNullOrEmpty(result) ? Results.NotFound() : Results.Created($"/accounts/{result}", result);
         })
         .WithName("CreateAccount")
