@@ -1,5 +1,4 @@
-﻿global using JK.Finances.Api.Endpoints;
-global using JK.Finances.Api.Extensions;
+﻿global using JK.Finances.Api.Extensions;
 global using JK.Finances.DataAccess.DependencyInjection;
 global using JK.Finances.DataAccess.Services.Account;
 global using JK.Finances.Infrastructure.Models.Account.Requests;

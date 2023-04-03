@@ -27,6 +27,8 @@ app.RegisterSwagger();
 
 app.UseHttpsRedirection();
 
-app.MapAccountEndpoints();
+app.MapGroup("/accounts")
+    .MapAccountsApi()
+    .WithOpenApi();
 
 await app.RunAsync();

@@ -4,11 +4,6 @@ public class MongoAccountService : IMongoAccountService
 {
     private readonly IMongoCollection<AccountModel> _accounts;
 
-    private readonly ReplaceOptions _replaceOptions = new()
-    {
-        IsUpsert = true
-    };
-
     public MongoAccountService(IDbConnection dbConnection)
     {
         _accounts = dbConnection.AccountCollection;
@@ -26,18 +21,24 @@ public class MongoAccountService : IMongoAccountService
         return (await _accounts.FindAsync(x => x.Id == id)).FirstOrDefault();
     }
 
-    public async Task<string> CreateAccountAsync(AccountModel account)
+    public async Task<AccountModel> CreateAccountAsync(AccountModel account)
     {
         await _accounts.InsertOneAsync(account);
-        return account.Id;
+        return account;
     }
 
-    public async Task<string> UpdateAccountAsync(AccountModel account)
+    public async Task<AccountModel> UpdateAccountAsync(string id, UpdateAccountRequest updateAccountRequest)
     {
-        var filter = Builders<AccountModel>.Filter.Eq("Id", account.Id);
-        var result = await _accounts.ReplaceOneAsync(filter, account, _replaceOptions);
+        var result = await _accounts.FindOneAndUpdateAsync<AccountModel>(x => x.Id == id,
+            Builders<AccountModel>.Update
+            .Set(x => x.UpdatedDateTime, DateTime.UtcNow)
+            .Set(x => x.Name, updateAccountRequest.Name),
+            new()
+            {
+                ReturnDocument = ReturnDocument.After
+            });
 
-        return result.IsAcknowledged && result.ModifiedCount == 1 ? result.UpsertedId.AsString : string.Empty;
+        return result;
     }
 
     public async Task<bool> DeleteAccountAsync(string id)
